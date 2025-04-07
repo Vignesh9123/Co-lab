@@ -1,5 +1,5 @@
 {
-  "name": "my-turborepo",
+  "name": "codeparty",
   "private": true,
   "scripts": {
     "build": "turbo run build",
