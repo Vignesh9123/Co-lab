@@ -12,6 +12,8 @@ server.on('connection', socket=>{
     socket.on('message', (m)=>{
         const messageJson = JSON.parse(m.toString())
         if(messageJson.type == "message"){
+            // TODO: Send a indicator to the other user that a message is being sent
+            // TODO: Make a DB call to save the message
             const message = {
                 type:"message",
                 data: messageJson.data,
