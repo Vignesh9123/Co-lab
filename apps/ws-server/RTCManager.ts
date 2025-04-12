@@ -17,6 +17,14 @@ class RTCManager{
         }
         roomManager.sendMessageToRoom(message, toRoom)
     }
+    sendIceCandidate(iceCandidate: RTCIceCandidate, toRoom: string, from: string){
+        const message = {
+            type: "iceCandidate",
+            iceCandidate,
+            from
+        }
+        roomManager.sendMessageToRoom(message, toRoom)
+    }
 }
 
 export const rtcManager = new RTCManager()
