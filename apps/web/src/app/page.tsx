@@ -2,13 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Code2, Headphones, Monitor, PenTool, Youtube } from "lucide-react";
-import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
-  const { theme } = useTheme();
 
   useEffect(() => {
     setMounted(true);
@@ -18,7 +16,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
       <header className="fixed top-0 w-full z-50 backdrop-blur-lg bg-background/80 border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -37,7 +34,6 @@ export default function Home() {
       </header>
 
       <main className="flex-1 relative overflow-hidden pt-16">
-        {/* Gradient Background */}
         <div className="absolute inset-0 w-full h-full dark:bg-black bg-white -z-10">
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-[800px] h-[800px] dark:bg-purple-500/20 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
@@ -46,9 +42,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
-          {/* Hero Section */}
           <div className="text-center space-y-8">
             <div className="inline-block">
               <div className="inline-flex items-center justify-center px-4 py-1.5 border dark:border-gray-700 border-gray-300 rounded-full text-sm font-medium mb-8 backdrop-blur-sm">
@@ -70,7 +64,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Features Grid */}
           <div className="mt-32 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             <FeatureCard
               icon={<Code2 className="w-6 h-6" />}
@@ -101,7 +94,6 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="border-t">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
