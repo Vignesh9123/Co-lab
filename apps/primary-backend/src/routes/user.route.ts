@@ -26,8 +26,8 @@ userRouter.post('/google-auth', async (req, res)=>{
             res.status(200).json({ message:"User logged in successfully", user: newUser, accessToken });
             return;
         }
-
-        res.status(200).json({ message:"User logged in successfully",user });
+        const accessToken = setAndGetAccessToken(res, uid);
+        res.status(200).json({ message:"User logged in successfully",user, accessToken });
         return;
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });

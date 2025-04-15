@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Code2, Headphones, Monitor, PenTool, Youtube } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import Link from "next/link";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -25,7 +26,7 @@ export default function Home() {
               </span>
             </div>
             <div className="flex items-center gap-4">
-              <Button variant="ghost">Sign In</Button>
+             <Link href="/signin"><Button variant="ghost" >Sign In</Button></Link>
               <Button>Get Started</Button>
               <ThemeToggle />
             </div>
