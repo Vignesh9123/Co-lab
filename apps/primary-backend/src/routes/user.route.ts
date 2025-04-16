@@ -112,3 +112,9 @@ userRouter.get('/current-user-rooms', authMiddleware, async (req, res) => {
     return;
    }
 })
+
+userRouter.get('/logout', authMiddleware, (req, res) => {
+    res.clearCookie('accessToken');
+    res.status(200).json({ message: 'Logged out successfully' });
+    return;
+})
