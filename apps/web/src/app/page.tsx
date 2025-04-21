@@ -28,7 +28,7 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-4">
              {isLoggedIn ? (
-               <Button>Get Started</Button>
+               <Link href="/dashboard"><Button>Get Started</Button></Link>
             ) : (
               <Link href="/signin"><Button variant="ghost" >Sign In</Button></Link>
              )}

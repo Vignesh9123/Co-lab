@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
@@ -9,7 +9,7 @@ import {toast} from 'react-toastify';
 function SignIn() {
   const auth = getAuth();
 const provider = new GoogleAuthProvider();
-const {login} = useAuthStore()
+const {login, isLoggedIn, loading} = useAuthStore()
 const router = useRouter();
 const handleGoogleSignIn = async () => {
     try {
@@ -18,20 +18,6 @@ const handleGoogleSignIn = async () => {
       const userData = {
         idtoken: await user.getIdToken(),
       };
-      // const signInPromise = axiosInstance
-      //   .post(
-      //     "/user/google-auth",
-      //     userData, 
-      //     {
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //       },
-      //       withCredentials: true,
-      //     }
-      //   )
-      //   .then((response) => {
-      //     localStorage.setItem("token", response.data.data.token);
-      //   });
       const signInPromise = login({idToken: userData.idtoken})
       .then(() => {
         router.push('/dashboard');
@@ -39,7 +25,12 @@ const handleGoogleSignIn = async () => {
       toast.promise(signInPromise, {
         pending: "Signing in...",
         success: "Signed in successfully!",
-        error: "Failed to sign in. Please try again.",
+        error: {
+          render(error){
+            const message = (error.data as any).response.data.error;
+            return message || "Failed to sign in. Please try again.";
+          }
+        }
       });
     } catch (error: any) {
       if (error.status === 429) {
@@ -48,6 +39,11 @@ const handleGoogleSignIn = async () => {
       }
     }
   };
+  useEffect(()=>{
+    if(isLoggedIn) {
+      router.push('/dashboard');
+    }
+  }, [isLoggedIn, router])
   return (
     <div className='h-screen p-10'>
         <Link href="/">

@@ -21,7 +21,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setIsLoggedIn(true);
             })
             .catch(error => {
-                console.error('Error fetching current user:', error);
+                console.log('Error fetching current user:', error);
                 if(error instanceof AxiosError) {
                     if(error.status == 401) {
                         console.log("Logged out")
