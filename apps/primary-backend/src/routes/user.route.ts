@@ -8,6 +8,7 @@ userRouter.post('/google-auth', async (req, res)=>{
     try {
         const { idToken } = req.body;
         if(!firebaseApp){
+            console.log("No fb app")
             res.status(500).json({ error: 'Internal Server Error' });
             return;
         }
@@ -30,6 +31,7 @@ userRouter.post('/google-auth', async (req, res)=>{
         res.status(200).json({ message:"User logged in successfully",user, accessToken });
         return;
     } catch (error) {
+        console.log("Auth error", error)
         res.status(500).json({ error: 'Internal Server Error' });
         return;
     }

@@ -5,10 +5,11 @@ import { ArrowRight, Code2, Headphones, Monitor, PenTool, Youtube } from "lucide
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import Link from "next/link";
+import { useAuthStore } from "@/zustand/auth";
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
-
+  const {isLoggedIn} = useAuthStore();
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -26,8 +27,11 @@ export default function Home() {
               </span>
             </div>
             <div className="flex items-center gap-4">
-             <Link href="/signin"><Button variant="ghost" >Sign In</Button></Link>
-              <Button>Get Started</Button>
+             {isLoggedIn ? (
+               <Button>Get Started</Button>
+            ) : (
+              <Link href="/signin"><Button variant="ghost" >Sign In</Button></Link>
+             )}
               <ThemeToggle />
             </div>
           </div>
