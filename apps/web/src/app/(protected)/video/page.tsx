@@ -1,17 +1,19 @@
 'use client'
 import { useAuthStore } from '@/zustand/auth'
 import React, {useState, useEffect, useRef} from 'react'
- 
+import { useRouter } from 'next/navigation'
 function Video() {
   const [myStream, setMyStream] = useState<MediaStream | null>(null)
   const [_, setRemoteStream] = useState<MediaStream | null>(null)
   const [socket, setSocket] = useState<WebSocket | null>(null)
   const myVideo = useRef<HTMLVideoElement>(null)
   const remoteVideo = useRef<HTMLVideoElement>(null)
-  const {user} = useAuthStore()
-
+  const {user, loading} = useAuthStore()
+  const router = useRouter()
   const peerConnection = useRef<RTCPeerConnection | null>(null)
 
+  
+  
   const createPeer = () => {
     const peer = new RTCPeerConnection(
       {
@@ -21,7 +23,7 @@ function Video() {
       }
     )
     peerConnection.current = peer
-
+    
     peer.onicecandidate = ({candidate})=>{
       if(!candidate) return
       socket?.send(JSON.stringify({
@@ -31,12 +33,18 @@ function Video() {
         from: user?.id
       }))
     }
-
+    
     peer.ontrack = (ev)=>{
       setRemoteStream(ev.streams[0]);
       remoteVideo.current!.srcObject = ev.streams[0]
     }
   }
+  
+  useEffect(() => {
+     if(!user && !loading ){
+       router.push('/signin');
+     }
+   }, [user, router, loading])
 
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(stream => {
