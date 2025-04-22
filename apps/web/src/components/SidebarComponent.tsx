@@ -8,35 +8,35 @@ function SidebarComponent() {
     const links = [
         {
           label: "Dashboard",
-          href: "#",
+          href: "/dashboard",
           icon: (
             <Home className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
           ),
         },
         {
           label: "Video",
-          href: "#",
+          href: "/video",
           icon: (
             <Video className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
           ),
         },
         {
           label: "Draw",
-          href: "#",
+          href: "/draw",
           icon: (
             <PencilRuler className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
           ),
         },
         {
           label: "Watch",
-          href: "#",
+          href: "/watch",
           icon: (
             <Youtube className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
           ),
         },
         {
           label: "Listen",
-          href: "#",
+          href: "/listen",
           icon: (
             <Headphones className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
           ),
