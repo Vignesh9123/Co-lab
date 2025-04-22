@@ -21,6 +21,7 @@ userRouter.post('/google-auth', async (req, res)=>{
                     id: uid,
                     name: decodedToken.name,
                     email: decodedToken.email!,
+                    profilePicture: decodedToken.picture
                 }
             });
             const accessToken = setAndGetAccessToken(res, uid);
@@ -54,6 +55,7 @@ userRouter.get('/current-user', authMiddleware, async (req, res) => {
         id: true,
         name: true,
         email: true,
+        profilePicture: true,
         rooms: {
             select:{
                 id: true,
