@@ -7,14 +7,18 @@ const server = new WebSocketServer({
 })
 
 interface MessageJSON {
-    type: "message" | "offer" | "answer" | "iceCandidate";
+    type: "message" | "offer" | "answer" | "iceCandidate" | "join-room" | "leave-room";
     data: string;
     from: string;
     roomId: string;
-    offer: RTCSessionDescription;
-    answer: RTCSessionDescription;
-    iceCandidate: RTCIceCandidate;
+    offer: any;
+    answer: any;
+    iceCandidate: any;
 }
+
+server.on('listening', ()=>{
+    console.log(`Server is running on port ${process.env.PORT || 8000}`)
+})
 
 server.on('connection', (socket)=>{
     // TODO: Add a middleware to check if the user is authenticated
@@ -32,6 +36,14 @@ server.on('connection', (socket)=>{
             }
             const roomId = messageJson.roomId
             roomManager.sendMessageToRoom(message, roomId)
+        }
+        if(messageJson.type == "join-room"){
+            const roomId = messageJson.roomId
+            roomManager.joinRoom(roomId, socket)
+        }
+        if(messageJson.type == "leave-room"){
+            const roomId = messageJson.roomId
+            roomManager.removeFromRoom(roomId, socket)
         }
         if(messageJson.type == "offer"){
             const offer = messageJson.offer
@@ -51,6 +63,11 @@ server.on('connection', (socket)=>{
             const from = messageJson.from
             rtcManager.sendIceCandidate(iceCandidate, roomId, from)
         }
+    })
+
+    socket.on('close', ()=>{
+        console.log("Hey somebody left")
+        roomManager.disconnectFromRoom(socket)
     })
     
 })

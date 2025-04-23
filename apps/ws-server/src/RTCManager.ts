@@ -1,6 +1,6 @@
 import { roomManager } from "./RoomManager";
 class RTCManager{
-    sendOffer(offer:RTCSessionDescription, toRoom: string, from: string){
+    sendOffer(offer:any, toRoom: string, from: string){
         const message = {
             type: "offer",
             offer,
@@ -9,7 +9,7 @@ class RTCManager{
         roomManager.sendMessageToRoom(message, toRoom)
     }
 
-    sendAnswer(answer: RTCSessionDescription, toRoom: string, from: string){
+    sendAnswer(answer: any, toRoom: string, from: string){
         const message = {
             type: "answer",
             answer,
@@ -17,7 +17,7 @@ class RTCManager{
         }
         roomManager.sendMessageToRoom(message, toRoom)
     }
-    sendIceCandidate(iceCandidate: RTCIceCandidate, toRoom: string, from: string){
+    sendIceCandidate(iceCandidate: any, toRoom: string, from: string){
         const message = {
             type: "iceCandidate",
             iceCandidate,
