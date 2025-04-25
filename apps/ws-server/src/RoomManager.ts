@@ -25,12 +25,15 @@ class RoomManager{
         }
     }
 
-    sendMessageToRoom(message: any, roomId:string){ // TODO: Set message type
+    sendMessageToRoom(message: any, roomId:string, socket: WebSocket){ // TODO: Set message type
         if(this.roomsToSockets[roomId] && this.roomsToSockets[roomId].size > 0){
+            console.log("Sending message to room", roomId, message)
             this.roomsToSockets[roomId].forEach(s=>{
-                s.send(message, {
+                if(s !== socket){
+                s.send(JSON.stringify(message), {
                     binary: false
                 })
+                }
             })
         }
     }

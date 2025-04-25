@@ -68,6 +68,7 @@ function Video() {
   const startCall = () => {
     if (!peerConnection.current) return;
     peerConnection.current!.createOffer().then(offer => {
+      console.log('Sending offer', offer)
       peerConnection.current!.setLocalDescription(offer)
       socket?.send(JSON.stringify({
         type: 'offer',
@@ -83,15 +84,22 @@ function Video() {
 
     socket.onopen = ()=>{
       createPeer()
+      socket?.send(JSON.stringify({
+        type: 'join-room',
+        roomId: '1',
+        from: user?.id
+      }))
     }
 
     socket.onmessage = (m)=>{
       const message = JSON.parse(m.data)
       if(message.type == "offer"){
         if (!peerConnection.current) return;
+        console.log("Received offer", message)
         peerConnection.current!.setRemoteDescription(new RTCSessionDescription(message.offer))
         peerConnection.current!.createAnswer().then(answer => {
           peerConnection.current!.setLocalDescription(answer)
+          console.log("Sending answer", answer)
           socket?.send(JSON.stringify({
             type: 'answer',
             answer: answer,
@@ -102,6 +110,7 @@ function Video() {
       }
       if(message.type == "answer"){
         if (!peerConnection.current) return;
+        console.log("Received ans", message)
         peerConnection.current!.setRemoteDescription(new RTCSessionDescription(message.answer))
       }
       if(message.type == "iceCandidate"){

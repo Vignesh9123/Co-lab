@@ -35,9 +35,10 @@ server.on('connection', (socket)=>{
                 from: messageJson.from
             }
             const roomId = messageJson.roomId
-            roomManager.sendMessageToRoom(message, roomId)
+            roomManager.sendMessageToRoom(message, roomId, socket)
         }
         if(messageJson.type == "join-room"){
+            console.log("Hey somebody joined room", messageJson)
             const roomId = messageJson.roomId
             roomManager.joinRoom(roomId, socket)
         }
@@ -49,19 +50,19 @@ server.on('connection', (socket)=>{
             const offer = messageJson.offer
             const roomId = messageJson.roomId
             const from = messageJson.from
-            rtcManager.sendOffer(offer, roomId, from)
+            rtcManager.sendOffer(offer, roomId, from, socket)
         }
         if(messageJson.type == "answer"){
             const answer = messageJson.answer
             const roomId = messageJson.roomId
             const from = messageJson.from
-            rtcManager.sendAnswer(answer, roomId, from)
+            rtcManager.sendAnswer(answer, roomId, from, socket)
         }
         if(messageJson.type == "iceCandidate"){
             const iceCandidate = messageJson.iceCandidate
             const roomId = messageJson.roomId
             const from = messageJson.from
-            rtcManager.sendIceCandidate(iceCandidate, roomId, from)
+            rtcManager.sendIceCandidate(iceCandidate, roomId, from, socket)
         }
     })
 
