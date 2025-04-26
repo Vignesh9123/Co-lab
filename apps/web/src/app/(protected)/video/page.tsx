@@ -2,6 +2,7 @@
 import { useAuthStore } from '@/zustand/auth'
 import React, {useState, useEffect, useRef} from 'react'
 import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
 function Video() {
   const [myStream, setMyStream] = useState<MediaStream | null>(null)
   const [_, setRemoteStream] = useState<MediaStream | null>(null)
@@ -39,7 +40,33 @@ function Video() {
       remoteVideo.current!.srcObject = ev.streams[0]
     }
   }
-  
+  const handleStopStream = () => {
+    myStream?.getTracks().forEach(track => track.enabled = false);
+    myVideo.current!.srcObject = null;
+  };
+
+  const handleResumeStream = () => {
+    myStream?.getTracks().forEach(track =>track.enabled = true);
+    myVideo.current!.srcObject = myStream;
+  };
+
+  const handleMuteAudio = ()=>{
+    if(!myStream) return
+    myStream.getAudioTracks().forEach(track => track.enabled = false);
+  }
+  const handleUnmuteAudio = ()=>{
+    if(!myStream) return
+    myStream.getAudioTracks().forEach(track => track.enabled = true);
+  }
+
+  const handleMuteVideo = ()=>{
+    if(!myStream) return
+    myStream.getVideoTracks().forEach(track => track.enabled = false);
+  }
+  const handleUnmuteVideo = ()=>{
+    if(!myStream) return
+    myStream.getVideoTracks().forEach(track => track.enabled = true);
+  }
   useEffect(() => {
      if(!user && !loading ){
        router.push('/signin');
@@ -123,7 +150,13 @@ function Video() {
     <div>
       Video
       <video className='border border-red-600' ref={myVideo} autoPlay muted />
-      <video className='border border-green-600' ref={remoteVideo} autoPlay muted/>
+      <video className='border border-green-600' ref={remoteVideo} autoPlay/>
+      <Button onClick={handleStopStream}>Stop Stream</Button>
+      <Button onClick={handleResumeStream}>Resume Stream</Button>
+      <Button onClick={handleMuteAudio}>Mute Audio</Button>
+      <Button onClick={handleUnmuteAudio}>Unmute Audio</Button>
+      <Button onClick={handleMuteVideo}>Mute Video</Button>
+      <Button onClick={handleUnmuteVideo}>Unmute Video</Button>
       <button onClick={startCall}>Start Call</button>
     </div>
   )
