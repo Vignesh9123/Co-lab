@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import { Sidebar ,SidebarLink, SidebarBody} from '@/components/ui/sidebar';
-import { Home, Video, PencilRuler, Youtube, Headphones } from 'lucide-react'
+import { Home, Video, PencilRuler, Youtube, Headphones , Code} from 'lucide-react'
 import {motion} from 'motion/react'
 import {useAuthStore} from '@/zustand/auth'
 function SidebarComponent() {
@@ -11,6 +11,13 @@ function SidebarComponent() {
           href: "/dashboard",
           icon: (
             <Home className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
+          ),
+        },
+        {
+          label: "Code",
+          href: "/code",
+          icon: (
+            <Code className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" />
           ),
         },
         {
