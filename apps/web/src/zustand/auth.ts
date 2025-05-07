@@ -10,7 +10,7 @@ export const useAuthStore = create<AuthState>()((set) => (
     token: null,
     loading: true,
     isLoggedIn: false,
-    setUser: (u) => set(() => ({user:u, isLoggedIn: true })),
+    setUser: (u) => set({user:u, isLoggedIn: true }),
     login: async({idToken})=>{
             set({loading: true});
             const response = await axiosInstance.post('/user/google-auth', { idToken });
