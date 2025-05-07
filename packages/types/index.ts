@@ -18,3 +18,8 @@ export interface AuthState{
     setIsLoggedIn: (isLoggedIn: boolean) => void;
 }
 
+export interface SocketState{
+    socket: WebSocket | null,
+    setSocket : (s: WebSocket)=>void
+}
+

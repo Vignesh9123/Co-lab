@@ -1,13 +1,15 @@
 'use client'
 import { useAuthStore } from "@/zustand/auth"
+import { useSocketStore } from "@/zustand/socket"
 import { useEffect, useRef, useState } from "react"
 function useVideo() {
 
   // TODO: Move socket to context
   // TODO: Move streams to context too as it may be required in other pages
   const peerConnection = useRef<RTCPeerConnection>(null)
-  const [socket, setSocket] = useState<WebSocket | null>(null) 
-  const {user, loading} = useAuthStore()
+  const socket = useSocketStore((state)=> state.socket) 
+  const setSocket = useSocketStore((state)=> state.setSocket) 
+  const {user} = useAuthStore()
   const myVideo = useRef<HTMLVideoElement>(null)
   const remoteVideo = useRef<HTMLVideoElement>(null)
   const [myStream, setMyStream] = useState<MediaStream | null>(null)
@@ -71,9 +73,10 @@ function useVideo() {
       setMyStream(stream)
       myVideo.current!.srcObject = stream
     })
-
-    const wsocket = new WebSocket('ws://localhost:8000')
-    setSocket(wsocket)
+    if(!socket){
+      const wsocket = new WebSocket('ws://localhost:8000')
+      setSocket(wsocket)
+    }
   }, [])
 
   useEffect(() => {
