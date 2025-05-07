@@ -1,12 +1,14 @@
 'use client'
 import { useAuthStore } from '@/zustand/auth'
-import React, {useState, useEffect, useRef} from 'react'
+import React, { useEffect} from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import useVideo from '@/hooks/useVideo'
 function Video() {
 
-  const {user, loading} = useAuthStore()
+  const user = useAuthStore((state)=> state.user)
+  const loading = useAuthStore((state)=> state.loading)
+  
   const router = useRouter()
   
   const {handleMuteAudio, handleMuteVideo, handleResumeStream, handleStopStream, handleUnmuteAudio, handleUnmuteVideo, myVideo, startCall, remoteVideo} = useVideo()

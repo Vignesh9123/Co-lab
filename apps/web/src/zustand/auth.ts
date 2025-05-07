@@ -1,18 +1,8 @@
 import { create } from "zustand";
-import {User} from '@repo/types'
+import {User, AuthState} from '@repo/types'
 import axiosInstance from "@/config/axiosConfig";
 
-interface AuthState{
-    user: User | null;
-    token: string | null;
-    loading: boolean;
-    isLoggedIn: boolean;
-    setUser: (user: User | null) => void;
-    login: ({idToken}:{idToken: string}) => Promise<void>;
-    logout: () => void;
-    setLoading: (loading: boolean) => void;
-    setIsLoggedIn: (isLoggedIn: boolean) => void;
-}
+
 
 export const useAuthStore = create<AuthState>()((set) => (
 {   
@@ -26,8 +16,7 @@ export const useAuthStore = create<AuthState>()((set) => (
             const response = await axiosInstance.post('/user/google-auth', { idToken });
             const {user, accessToken} = response.data;
             localStorage.setItem('token', accessToken);
-            set(() => ({user: user, token: accessToken, loading: false, isLoggedIn: true}));    
-       
+            set(() => ({user: user, token: accessToken, loading: false, isLoggedIn: true}));      
         
     },
     logout: async() => {
