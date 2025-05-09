@@ -1,21 +1,27 @@
 'use client'
 import { useAuthStore } from "@/zustand/auth"
 import { useSocketStore } from "@/zustand/socket"
+import { useVideoStore } from "@/zustand/video"
 import { useEffect, useRef, useState } from "react"
 function useVideo() {
 
   // TODO: Move socket to context
   // TODO: Move streams to context too as it may be required in other pages
-  const peerConnection = useRef<RTCPeerConnection>(null)
+  const peerConnection = useVideoStore((state)=> state.peerConnection)
+  const setPeerConnection = useVideoStore((state)=> state.setPeerConnection)
   const socket = useSocketStore((state)=> state.socket) 
   const setSocket = useSocketStore((state)=> state.setSocket) 
   const {user} = useAuthStore()
   const myVideo = useRef<HTMLVideoElement>(null)
   const remoteVideo = useRef<HTMLVideoElement>(null)
-  const [myStream, setMyStream] = useState<MediaStream | null>(null)
-  const [_, setRemoteStream] = useState<MediaStream | null>(null)
+  // const [myStream, setMyStream] = useState<MediaStream | null>(null)
+  const myStream = useVideoStore((state)=> state.myStream)
+  const setMyStream = useVideoStore((state)=> state.setMyStream)
+  // const [_, setRemoteStream] = useState<MediaStream | null>(null)
+  const  setRemoteStream = useVideoStore((state)=> state.setRemoteStream)
 
   const createPeer = () => {
+    if(!socket) return
     const peer = new RTCPeerConnection(
       {
         iceServers: [
@@ -23,7 +29,7 @@ function useVideo() {
         ]
       }
     )
-    peerConnection.current = peer
+    setPeerConnection(peer)
     
     peer.onicecandidate = ({candidate})=>{
       if(!candidate) return
@@ -80,19 +86,21 @@ function useVideo() {
   }, [])
 
   useEffect(() => {
-    if (socket && myStream && peerConnection.current) {
+    if(peerConnection && peerConnection.getSenders().length > 0){
+      return
+    }
+    if (socket && myStream && peerConnection) {
       myStream.getTracks().forEach(track => {
-        if(peerConnection.current)
-          peerConnection.current.addTrack(track, myStream);
+          peerConnection.addTrack(track, myStream);
       });
     }
   }, [socket, myStream]);
 
   const startCall = () => {
-    if (!peerConnection.current) return;
-    peerConnection.current!.createOffer().then(offer => {
+    if (!peerConnection) return;
+    peerConnection.createOffer().then(offer => {
       console.log('Sending offer', offer)
-      peerConnection.current!.setLocalDescription(offer)
+      peerConnection.setLocalDescription(offer)
       socket?.send(JSON.stringify({
         type: 'offer',
         offer: offer,
@@ -116,11 +124,12 @@ function useVideo() {
     socket.onmessage = (m)=>{
       const message = JSON.parse(m.data)
       if(message.type == "offer"){
-        if (!peerConnection.current) return;
+        const peerConnection = useVideoStore.getState().peerConnection
+        if (!peerConnection) return;
         console.log("Received offer", message)
-        peerConnection.current!.setRemoteDescription(new RTCSessionDescription(message.offer))
-        peerConnection.current!.createAnswer().then(answer => {
-          peerConnection.current!.setLocalDescription(answer)
+        peerConnection.setRemoteDescription(new RTCSessionDescription(message.offer))
+        peerConnection.createAnswer().then(answer => {
+          peerConnection.setLocalDescription(answer)
           console.log("Sending answer", answer)
           socket?.send(JSON.stringify({
             type: 'answer',
@@ -131,19 +140,21 @@ function useVideo() {
         })
       }
       if(message.type == "answer"){
-        if (!peerConnection.current) return;
+        const peerConnection = useVideoStore.getState().peerConnection
+        if (!peerConnection) return;
         console.log("Received ans", message)
-        peerConnection.current!.setRemoteDescription(new RTCSessionDescription(message.answer))
+        peerConnection.setRemoteDescription(new RTCSessionDescription(message.answer))
       }
       if(message.type == "iceCandidate"){
-        if (!peerConnection.current) return;
-        peerConnection.current!.addIceCandidate(new RTCIceCandidate(message.iceCandidate))
+        const peerConnection = useVideoStore.getState().peerConnection
+        if (!peerConnection) return;
+        peerConnection.addIceCandidate(new RTCIceCandidate(message.iceCandidate))
       }
     }
   }, [socket])
   return (
    {
-    peer: peerConnection.current,
+    peer: peerConnection,
     createPeer,
     handleMuteAudio,
     handleMuteVideo,

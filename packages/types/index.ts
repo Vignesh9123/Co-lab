@@ -23,3 +23,12 @@ export interface SocketState{
     setSocket : (s: WebSocket)=>void
 }
 
+export interface VideoState{
+    peerConnection: RTCPeerConnection | null;
+    setPeerConnection: (p: RTCPeerConnection | null) => void;
+    myStream : MediaStream | null;
+    setMyStream : (s: MediaStream | null) => void;
+    remoteStream : MediaStream | null;
+    setRemoteStream : (s: MediaStream | null) => void;
+}
+
