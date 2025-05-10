@@ -72,7 +72,7 @@ userRouter.get('/current-user', authMiddleware, async (req, res) => {
         }
     } });
     if(!user) {
-        res.status(404).json({ message: 'User not found' });
+        res.status(400).json({ message: 'User not found' });
         return;
     }
     res.status(200).json({ user });
