@@ -1,29 +1,14 @@
 'use client'
-import React, { useEffect, useRef} from 'react'
-import {useVideoStore} from '@/zustand/video'
-function Watch() {
-  const myVideo = useRef<HTMLVideoElement>(null)
-  const remoteVideo = useRef<HTMLVideoElement>(null)
-  const {myStream, setMyStream, peerConnection, remoteStream} = useVideoStore()
+// import React from 'react'
 
-  useEffect(() => {
-    if(!myStream || !peerConnection || !remoteStream) return
-    myVideo.current!.srcObject = myStream
-    remoteVideo.current!.srcObject = remoteStream
+import VideoChat from "@/components/VideoChat"
 
-    peerConnection.ontrack = (e) => {
-      remoteVideo.current!.srcObject = e.streams[0]
-    }
-
-
-  }, [myStream, setMyStream, peerConnection])
+function page() {
   return (
     <div>
-      <video className='border border-red-600' ref={myVideo} autoPlay muted />
-      <video className='border border-green-600' ref={remoteVideo} autoPlay/>
-      
+      <VideoChat/>
     </div>
   )
 }
 
-export default Watch
+export default page

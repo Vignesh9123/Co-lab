@@ -4,6 +4,7 @@ import React, { useEffect} from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import useVideo from '@/hooks/useVideo'
+import VideoChat from '@/components/VideoChat'
 function Video() {
 
   const user = useAuthStore((state)=> state.user)
@@ -11,7 +12,7 @@ function Video() {
   
   const router = useRouter()
   
-  const {handleMuteAudio, handleMuteVideo, handleResumeStream, handleStopStream, handleUnmuteAudio, handleUnmuteVideo, myVideo, startCall, remoteVideo} = useVideo()
+  const {handleMuteAudio, handleMuteVideo, handleResumeStream, handleStopStream, handleUnmuteAudio, handleUnmuteVideo, startCall} = useVideo()
 
   useEffect(() => {
      if(!user && !loading ){
@@ -23,8 +24,7 @@ function Video() {
   return (
     <div>
       Video
-      <video className='border border-red-600' ref={myVideo} autoPlay muted />
-      <video className='border border-green-600' ref={remoteVideo} autoPlay/>
+      <VideoChat/>
       <Button onClick={handleStopStream}>Stop Stream</Button>
       <Button onClick={handleResumeStream}>Resume Stream</Button>
       <Button onClick={handleMuteAudio}>Mute Audio</Button>

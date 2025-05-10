@@ -21,7 +21,12 @@ function useVideo() {
   const  setRemoteStream = useVideoStore((state)=> state.setRemoteStream)
 
   const createPeer = () => {
-    if(!socket) return
+    console.log('createPeer')
+    if(!socket) {
+      console.log('socket is null')
+      return
+    }
+    console.log('creatingPeer')
     const peer = new RTCPeerConnection(
       {
         iceServers: [
@@ -30,7 +35,6 @@ function useVideo() {
       }
     )
     setPeerConnection(peer)
-    
     peer.onicecandidate = ({candidate})=>{
       if(!candidate) return
       socket?.send(JSON.stringify({
@@ -41,6 +45,10 @@ function useVideo() {
       }))
     }
     
+    if(!remoteVideo.current) {
+      console.log('remoteVideo is null')
+      return
+    }
     peer.ontrack = (ev)=>{
       setRemoteStream(ev.streams[0]);
       remoteVideo.current!.srcObject = ev.streams[0]
@@ -66,7 +74,10 @@ function useVideo() {
   }
 
   const handleMuteVideo = ()=>{
-    if(!myStream) return
+    if(!myStream) {
+      console.log('myStream is null')
+      return
+    }
     myStream.getVideoTracks().forEach(track => track.enabled = false);
   }
   const handleUnmuteVideo = ()=>{
@@ -77,6 +88,7 @@ function useVideo() {
   useEffect(() => {
     navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(stream => {
       setMyStream(stream)
+      if(!myVideo.current) return
       myVideo.current!.srcObject = stream
     })
     if(!socket){
@@ -109,11 +121,19 @@ function useVideo() {
       }))
     })
   }
+
+  useEffect(() => {
+    console.log('myVideo', myVideo.current)
+    if(!myVideo.current || !remoteVideo.current || !socket) return
+    console.log('remoteVideo', remoteVideo.current)
+    // if(!peerConnection) return;
+    console.log('peerConnection', peerConnection)
+    createPeer()
+  }, [myVideo, socket])
   useEffect(()=>{
     if(!socket) return;
 
     socket.onopen = ()=>{
-      createPeer()
       socket?.send(JSON.stringify({
         type: 'join-room',
         roomId: '1',
