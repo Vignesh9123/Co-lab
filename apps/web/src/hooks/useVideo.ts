@@ -3,10 +3,8 @@ import { useAuthStore } from "@/zustand/auth"
 import { useSocketStore } from "@/zustand/socket"
 import { useVideoStore } from "@/zustand/video"
 import { useEffect, useRef, useState } from "react"
-function useVideo() {
 
-  // TODO: Move socket to context
-  // TODO: Move streams to context too as it may be required in other pages
+function useVideo() {
   const peerConnection = useVideoStore((state)=> state.peerConnection)
   const setPeerConnection = useVideoStore((state)=> state.setPeerConnection)
   const socket = useSocketStore((state)=> state.socket) 
@@ -74,10 +72,13 @@ function useVideo() {
   }
 
   const handleMuteVideo = ()=>{
+    console.log("Calling handleMuteVideo")
     if(!myStream) {
       console.log('myStream is null')
       return
     }
+    console.log("Called handleMuteVideo")
+    console.log("myStream", myStream)
     myStream.getVideoTracks().forEach(track => track.enabled = false);
   }
   const handleUnmuteVideo = ()=>{
@@ -86,7 +87,9 @@ function useVideo() {
   }
 
   useEffect(() => {
+    if(myStream) return
     navigator.mediaDevices.getUserMedia({video: true, audio: true}).then(stream => {
+      console.log('stream', stream)
       setMyStream(stream)
       if(!myVideo.current) return
       myVideo.current!.srcObject = stream
