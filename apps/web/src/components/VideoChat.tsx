@@ -19,9 +19,12 @@ function VideoChat() {
 
   }, [myStream, setMyStream, peerConnection])
   return (
-    <div>
-      <video className='border border-red-600' ref={myVideo} autoPlay muted />
-      <video className='border border-green-600' ref={remoteVideo} autoPlay/>
+    <div >
+      <div className='flex gap-2 flex-col lg:flex-row '>
+        <video className='border border-red-600 w-[300px] h-auto' ref={myVideo} autoPlay muted />
+        <video className='border border-green-600 w-[300px] h-auto' ref={remoteVideo} autoPlay/>
+      </div>
+      <div>
       <Button onClick={handleStopStream}>Stop Stream</Button>
       <Button onClick={handleResumeStream}>Resume Stream</Button>
       <Button onClick={handleMuteAudio}>Mute Audio</Button>
@@ -29,6 +32,8 @@ function VideoChat() {
       <Button onClick={handleMuteVideo}>Mute Video</Button>
       <Button onClick={handleUnmuteVideo}>Unmute Video</Button>
       <button onClick={startCall}>Start Call</button>
+      </div>
+      
     </div>
   )
 }
