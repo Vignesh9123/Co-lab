@@ -7,7 +7,7 @@ const server = new WebSocketServer({
 })
 
 interface MessageJSON {
-    type: "message" | "offer" | "answer" | "iceCandidate" | "join-room" | "leave-room";
+    type: "message" | "offer" | "answer" | "iceCandidate" | "join-room" | "leave-room" | "code";
     data: string;
     from: string;
     roomId: string;
@@ -63,6 +63,11 @@ server.on('connection', (socket)=>{
             const roomId = messageJson.roomId
             const from = messageJson.from
             rtcManager.sendIceCandidate(iceCandidate, roomId, from, socket)
+        }
+        if(messageJson.type == "code"){
+            console.log('m', messageJson)
+            roomManager.disconnectFromRoom(socket)
+            roomManager.sendMessageToRoom(messageJson,'1', socket)
         }
     })
 

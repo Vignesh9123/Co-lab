@@ -5,12 +5,15 @@ class RoomManager{
     private socketToRoom = new Map<WebSocket, string>() 
 
     joinRoom(roomId: string, socket: WebSocket){
+        console.log("Joining room", roomId, this.roomsToSockets[roomId] ? this.roomsToSockets[roomId].size: 0)
         if(this.roomsToSockets[roomId]){
             this.roomsToSockets[roomId].add(socket)
+            console.log("Joined room", roomId, this.roomsToSockets[roomId] ? this.roomsToSockets[roomId].size: 0)
         }
         else{
             this.roomsToSockets[roomId] = new Set()
             this.roomsToSockets[roomId].add(socket)
+            console.log("Joined room", roomId, this.roomsToSockets[roomId] ? this.roomsToSockets[roomId].size: 0)
         }
         this.socketToRoom.set(socket, roomId)
     }
@@ -27,9 +30,9 @@ class RoomManager{
 
     sendMessageToRoom(message: any, roomId:string, socket: WebSocket){ // TODO: Set message type
         if(this.roomsToSockets[roomId] && this.roomsToSockets[roomId].size > 0){
-            console.log("Sending message to room", roomId, message)
             this.roomsToSockets[roomId].forEach(s=>{
                 if(s !== socket){
+                    console.log("Sending message to room", roomId, message, 'no of sockets', this.roomsToSockets[roomId].size)
                 s.send(JSON.stringify(message), {
                     binary: false
                 })
