@@ -10,61 +10,69 @@ function Code() {
   const {user} = useAuthStore()
   const code = useCodeStore((state) => state.code);
   const setCode = useCodeStore((state) => state.setCode);
-  const socketReconnectionInterval = useRef<NodeJS.Timeout>(null)
+  // const socketReconnectionInterval = useRef<NodeJS.Timeout>(null)
   // useEffect(()=>{
   //   if(!socket) return
 
     
     
   // }, [])
+  const reconnectIntervalRef = useRef<NodeJS.Timeout>(null);
+  const reconnectDelay = useRef(1000); // exponential backoff
 
-  useEffect(()=>{
-    if(!socket){
-      setSocket(new WebSocket('ws://localhost:8000'))
-      return
-    }
-    socket.onopen = ()=>{
-      console.log('socket opened')
-      if(socketReconnectionInterval.current) clearInterval(socketReconnectionInterval.current)
-      socket?.send(JSON.stringify({
+  const connectSocket = () => {
+    console.log("Connecting to socket...");
+    const ws = new WebSocket('ws://localhost:8000');
+    setSocket(ws);
+  };
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    connectSocket(); // Initial connection
+
+    return () => {
+      // Clean up
+      socket?.close();
+      if (reconnectIntervalRef.current) clearInterval(reconnectIntervalRef.current);
+    };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.onopen = () => {
+      console.log('socket opened');
+      reconnectDelay.current = 1000; // Reset backoff
+      socket.send(JSON.stringify({
         type: 'join-room',
         roomId: '1',
         from: user?.id
-      }))
-    }
-    
-    socket.onmessage = (m)=>{
-      const message = JSON.parse(m.data)
-      if(message.type == "code"){
-        setCode(message.code)
+      }));
+    };
+
+    socket.onmessage = (m) => {
+      const message = JSON.parse(m.data);
+      if (message.type === "code") {
+        setCode(message.code); 
       }
-    }
+    };
 
-    socket.onclose = ()=>{
-      console.log('socket closed')
-      if(socketReconnectionInterval.current) clearInterval(socketReconnectionInterval.current)
-      socketReconnectionInterval.current = setInterval(trySocketReconnection, 1000)
-    }
-  }, [socket])
+    socket.onclose = () => {
+      console.log('socket closed');
+      if (reconnectIntervalRef.current) clearInterval(reconnectIntervalRef.current);
+      reconnectIntervalRef.current = setTimeout(() => {
+        reconnectDelay.current = Math.min(reconnectDelay.current * 2, 30000); // exponential backoff
+        connectSocket();
+      }, reconnectDelay.current);
+    };
 
-  const trySocketReconnection = async() => { // TODO: Make this better as currently many reconnections are made and hence room is populated many times
-    if(!socket || socket.readyState !== socket.OPEN) {
-      console.log('Trying to reconnect')
-      const newSocket = new WebSocket('ws://localhost:8000')
-      // // const promise1 =()=> new Promise((resolve, reject) => {
-      // //   newSocket.onopen = resolve
-      // // })
-      // const promise2 = ()=> new Promise((resolve, reject) => {
-      //   setTimeout(resolve, 100)
-      // })
+    socket.onerror = (err) => {
+      console.log('Socket error', err);
+      socket.close(); 
+    };
+  }, [socket]);
 
-      // // await Promise.race([promise1(), promise2()])
-      // await promise2()
-      if(newSocket.readyState === newSocket.CONNECTING) {
-        setSocket(newSocket)
-      }
-    }
-  }
 
   const handleChange = (value: string | undefined) => {
     if(!socket) {
