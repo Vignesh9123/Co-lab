@@ -1,13 +1,16 @@
 'use client'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import Editor from '@monaco-editor/react';
 import { useSocketStore } from '@/zustand/socket';
 import { useAuthStore } from '@/zustand/auth';
+import { useCodeStore } from '@/zustand/code';
 function Code() {
   const socket = useSocketStore((state) => state.socket);
   const setSocket = useSocketStore((state) => state.setSocket);
   const {user} = useAuthStore()
-  const [code, setCode] = React.useState<string>('');
+  const code = useCodeStore((state) => state.code);
+  const setCode = useCodeStore((state) => state.setCode);
+  const socketReconnectionInterval = useRef<NodeJS.Timeout>(null)
   // useEffect(()=>{
   //   if(!socket) return
 
@@ -22,6 +25,7 @@ function Code() {
     }
     socket.onopen = ()=>{
       console.log('socket opened')
+      if(socketReconnectionInterval.current) clearInterval(socketReconnectionInterval.current)
       socket?.send(JSON.stringify({
         type: 'join-room',
         roomId: '1',
@@ -38,8 +42,29 @@ function Code() {
 
     socket.onclose = ()=>{
       console.log('socket closed')
+      if(socketReconnectionInterval.current) clearInterval(socketReconnectionInterval.current)
+      socketReconnectionInterval.current = setInterval(trySocketReconnection, 1000)
     }
   }, [socket])
+
+  const trySocketReconnection = async() => { // TODO: Make this better as currently many reconnections are made and hence room is populated many times
+    if(!socket || socket.readyState !== socket.OPEN) {
+      console.log('Trying to reconnect')
+      const newSocket = new WebSocket('ws://localhost:8000')
+      // // const promise1 =()=> new Promise((resolve, reject) => {
+      // //   newSocket.onopen = resolve
+      // // })
+      // const promise2 = ()=> new Promise((resolve, reject) => {
+      //   setTimeout(resolve, 100)
+      // })
+
+      // // await Promise.race([promise1(), promise2()])
+      // await promise2()
+      if(newSocket.readyState === newSocket.CONNECTING) {
+        setSocket(newSocket)
+      }
+    }
+  }
 
   const handleChange = (value: string | undefined) => {
     if(!socket) {
@@ -48,6 +73,7 @@ function Code() {
     }
     if(value === undefined) return
     setCode(value)
+    if(socket.readyState !== socket.OPEN) return
     socket.send(JSON.stringify({type: 'code', code: value}))
   }
   return (

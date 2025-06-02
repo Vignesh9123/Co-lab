@@ -32,3 +32,8 @@ export interface VideoState{
     setRemoteStream : (s: MediaStream | null) => void;
 }
 
+export interface CodeState{
+    code: string | undefined;
+    setCode: (c: string) => void;
+}
+
