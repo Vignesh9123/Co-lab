@@ -66,7 +66,7 @@ server.on('connection', (socket)=>{
         }
         if(messageJson.type == "code"){
             console.log('m', messageJson)
-            roomManager.disconnectFromRoom(socket)
+            // roomManager.disconnectFromRoom(socket)
             roomManager.sendMessageToRoom(messageJson,'1', socket)
         }
     })

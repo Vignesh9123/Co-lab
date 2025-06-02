@@ -7,18 +7,13 @@ function Code() {
   const socket = useSocketStore((state) => state.socket);
   const setSocket = useSocketStore((state) => state.setSocket);
   const {user} = useAuthStore()
-  useEffect(()=>{
-    if(!socket) return
+  const [code, setCode] = React.useState<string>('');
+  // useEffect(()=>{
+  //   if(!socket) return
 
     
-    socket.onmessage = (m)=>{
-      console.log('m', m)
-      const message = JSON.parse(m.data)
-      if(message.type == "code"){
-        console.log('m', m)
-      }
-    }
-  }, [])
+    
+  // }, [])
 
   useEffect(()=>{
     if(!socket){
@@ -33,6 +28,13 @@ function Code() {
         from: user?.id
       }))
     }
+    
+    socket.onmessage = (m)=>{
+      const message = JSON.parse(m.data)
+      if(message.type == "code"){
+        setCode(message.code)
+      }
+    }
 
     socket.onclose = ()=>{
       console.log('socket closed')
@@ -40,13 +42,13 @@ function Code() {
   }, [socket])
 
   const handleChange = (value: string | undefined) => {
-    console.log('Code changed', value);
     if(!socket) {
       console.log('socket is null')
       return
     }
+    if(value === undefined) return
+    setCode(value)
     socket.send(JSON.stringify({type: 'code', code: value}))
-    console.log('Message sent', value);
   }
   return (
     <div>
@@ -56,6 +58,8 @@ function Code() {
       defaultValue="// some comment"
       theme='vs-dark'
       onChange={handleChange}
+      value={code}
+      
       // onMount={handleEditorDidMount}
     />
     </div>
