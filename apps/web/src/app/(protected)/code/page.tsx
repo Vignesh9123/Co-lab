@@ -4,6 +4,7 @@ import Editor from '@monaco-editor/react';
 import { useSocketStore } from '@/zustand/socket';
 import { useAuthStore } from '@/zustand/auth';
 import { useCodeStore } from '@/zustand/code';
+import {useDebouncedCallback} from 'use-debounce'
 function Code() {
   const socket = useSocketStore((state) => state.socket);
   const setSocket = useSocketStore((state) => state.setSocket);
@@ -12,14 +13,15 @@ function Code() {
   const setCode = useCodeStore((state) => state.setCode);
   // const socketReconnectionInterval = useRef<NodeJS.Timeout>(null)
   // useEffect(()=>{
-  //   if(!socket) return
-
+    //   if(!socket) return
     
     
-  // }, [])
-  const reconnectIntervalRef = useRef<NodeJS.Timeout>(null);
-  const reconnectDelay = useRef(1000); // exponential backoff
-
+    
+    // }, [])
+    const reconnectIntervalRef = useRef<NodeJS.Timeout>(null);
+    const reconnectDelay = useRef(1000); // exponential backoff
+    
+    // TODO: Use socketstore
   const connectSocket = () => {
     console.log("Connecting to socket...");
     const ws = new WebSocket('ws://localhost:8000');
@@ -32,7 +34,6 @@ function Code() {
     connectSocket(); // Initial connection
 
     return () => {
-      // Clean up
       socket?.close();
       if (reconnectIntervalRef.current) clearInterval(reconnectIntervalRef.current);
     };
@@ -73,8 +74,7 @@ function Code() {
     };
   }, [socket]);
 
-
-  const handleChange = (value: string | undefined) => {
+  const debounced = useDebouncedCallback((value: string | undefined) => {
     if(!socket) {
       console.log('socket is null')
       return
@@ -83,7 +83,7 @@ function Code() {
     setCode(value)
     if(socket.readyState !== socket.OPEN) return
     socket.send(JSON.stringify({type: 'code', code: value}))
-  }
+  }, 1000)
   return (
     <div>
       Code<Editor
@@ -91,7 +91,7 @@ function Code() {
       defaultLanguage="javascript"
       defaultValue="// some comment"
       theme='vs-dark'
-      onChange={handleChange}
+      onChange={debounced}
       value={code}
       
       // onMount={handleEditorDidMount}
