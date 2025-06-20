@@ -7,7 +7,7 @@ const server = new WebSocketServer({
 })
 
 interface MessageJSON {
-    type: "message" | "offer" | "answer" | "iceCandidate" | "join-room" | "leave-room" | "code";
+    type: "message" | "offer" | "answer" | "iceCandidate" | "join-room" | "leave-room" | "code" | "DRAW";
     data: string;
     from: string;
     roomId: string;
@@ -24,6 +24,7 @@ server.on('connection', (socket)=>{
     // TODO: Add a middleware to check if the user is authenticated
     console.log("Hey somebody joined")
     socket.on('message', async(m)=>{
+        console.log("bro some mesg came",m)
         const messageJson:MessageJSON = JSON.parse(m.toString())
         if(messageJson.type == "message"){
             // TODO: Send a indicator to the other user that a message is being sent
@@ -66,7 +67,10 @@ server.on('connection', (socket)=>{
         }
         if(messageJson.type == "code"){
             console.log('m', messageJson)
-            // roomManager.disconnectFromRoom(socket)
+            roomManager.sendMessageToRoom(messageJson,'1', socket)
+        }
+        if(messageJson.type == "DRAW"){
+            console.log('m', messageJson)
             roomManager.sendMessageToRoom(messageJson,'1', socket)
         }
     })

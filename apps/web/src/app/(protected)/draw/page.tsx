@@ -1,106 +1,65 @@
-'use client';
-import React, { useEffect, useRef, useState } from 'react';
+"use client";
+import { Tldraw } from 'tldraw'
+import 'tldraw/tldraw.css'
+import { useTheme } from 'next-themes';
+import { useSocketStore } from '@/zustand/socket';
+import { useEffect } from 'react';
+import { useAuthStore } from '@/zustand/auth';
+import HandleChange from '@/components/HandleChange';
 
-interface Shape {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-}
+export default function App() {
+    
+	return (
+    <div className='relative w-full h-full '>
 
-function Draw() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [shapes, setShapes] = useState<Shape[]>([]);
-  const [drawing, setDrawing] = useState<boolean>(false);
-  const [start, setStart] = useState<{ x: number; y: number } | null>(null);
+		<div style={{ position: 'absolute', inset: 0 }}>
+			<Tldraw 
+        inferDarkMode={useTheme().theme == "dark"}
+        onMount={(editor)=>{
+            
+          editor.createShape({
+            "x": 265.20000076293945,
+            "y": 137.8000060915947,
+            "rotation": 0,
+            "isLocked": false,
+            "opacity": 1,
+            "meta": {},
+            // "id": "shape:Y72b7CUV_Sj48n9xZ7Xzk",
+            "type": "geo",
+            "props": {
+                "w": 550.4000244140625,
+                "h": 272.79998779296875,
+                "geo": "rectangle",
+                "color": "black",
+                "labelColor": "black",
+                "fill": "none",
+                "dash": "draw",
+                "size": "m",
+                "font": "draw",
+                "align": "middle",
+                "verticalAlign": "middle",
+                "growY": 0,
+                "url": "",
+                "scale": 1,
+                "richText": {
+                    "type": "doc",
+                    "content": [
+                        {
+                            "type": "paragraph"
+                        }
+                    ]
+                }
+            },
+            "typeName": "shape",
+            // "parentId": "page:page",
+            // "index": "a2AqY"
+        })
+        }}
+      >
+        <HandleChange/>
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth - 100;
-      canvas.height = window.innerHeight;
-      redrawAllShapes();
-    };
-
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    return () => {
-      window.removeEventListener('resize', resizeCanvas);
-    };
-  }, []);
-
-  const redrawAllShapes = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    if (!ctx || !canvas) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.strokeStyle = 'red';
-    shapes.forEach((shape) => {
-      ctx.strokeRect(shape.x, shape.y, shape.w, shape.h);
-    });
-  };
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const handleMouseDown = (e: MouseEvent) => {
-      setStart({ x: e.clientX - 60, y: e.clientY });
-      setDrawing(true);
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!drawing || !start) return;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      redrawAllShapes(); 
-
-      ctx.strokeStyle = 'red';
-      ctx.strokeRect(start.x, start.y, e.clientX - start.x - 50, e.clientY - start.y);
-    };
-
-    const handleMouseUp = (e: MouseEvent) => {
-      if (!drawing || !start) return;
-
-      setShapes((prev) => [
-        ...prev,
-        {
-          x: start.x,
-          y: start.y,
-          w: e.clientX - start.x - 50,
-          h: e.clientY - start.y,
-        },
-      ]);
-      setDrawing(false);
-      setStart(null);
-    };
-
-    canvas.addEventListener('mousedown', handleMouseDown);
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseup', handleMouseUp);
-
-    return () => {
-      canvas.removeEventListener('mousedown', handleMouseDown);
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [drawing, start, shapes]);
-
-  useEffect(() => {
-    redrawAllShapes();
-  }, [shapes]);
-
-  return (
-    <div className="w-full h-screen">
-      <canvas className="block" ref={canvasRef} />
+      </Tldraw>
+		</div>
     </div>
-  );
+	)
 }
-
-export default Draw;
