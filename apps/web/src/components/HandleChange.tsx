@@ -1,7 +1,7 @@
 import { useAuthStore } from "@/zustand/auth"
 import { useSocketStore } from "@/zustand/socket"
 import { useEffect } from "react"
-import { useEditor } from "tldraw"
+import { TLShapeId, useEditor } from "tldraw"
 function HandleChange (){
     const editor = useEditor()
     const {socket, setSocket} = useSocketStore()
@@ -32,7 +32,8 @@ function HandleChange (){
             console.log("Message from room", m.data)
             const message = JSON.parse(m.data)
             if(message.type == "DRAW"){
-                editor.createShape({...message.shape, id:"shape:FromServer"}) // TODO: A unique id for each shape
+                editor.createShape({...message.shape, id:message.shape.id as TLShapeId, meta:{fromServer: true}}) // TODO: A unique id for each shape
+
             }
         }
 
@@ -41,15 +42,16 @@ function HandleChange (){
     useEffect(()=>{
         if(editor){
             editor.store.listen(update=>{
-                if(Object.keys(update.changes.added).length > 0){
-                    console.log("Something added", update.changes.added)
+                if(Object.entries(update.changes.updated).filter(s=> s[0].includes("shape")).length > 0){
+                    console.log("Something added", Object.entries(update.changes.updated).filter(s=> s[0].includes("shape"))[0][1][Object.entries(update.changes.updated).filter(s=> s[0].includes("shape"))[0][1].length - 1] )
 
                         console.log("Hola scoker")
-                        if(Object.values(update.changes.added)[0].id == "shape:FromServer") return
+                        console.log("From server", Object.keys( Object.entries(update.changes.updated).filter(s=> s[0].includes("shape"))[0][1][Object.entries(update.changes.updated).filter(s=> s[0].includes("shape"))[0][1].length - 1]?.meta).includes("fromServer"))
+                        if(Object.keys( Object.entries(update.changes.updated).filter(s=> s[0].includes("shape"))[0][1][Object.entries(update.changes.updated).filter(s=> s[0].includes("shape"))[0][1].length - 1]?.meta).includes("fromServer")) return
                         const data = {
                             type:"DRAW",
                             room:"1",
-                            shape: {...Object.values(update.changes.added)[0], id:undefined,parentId:undefined, index: undefined}
+                            shape: {...Object.entries(update.changes.updated).filter(s=> s[0].includes("shape"))[0][1][Object.entries(update.changes.updated).filter(s=> s[0].includes("shape"))[0][1].length - 1],parentId:undefined, index: undefined}
                         }
 
                         socket?.send(JSON.stringify(data))
