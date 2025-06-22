@@ -15,7 +15,9 @@ function HandleChange (){
       };
 
     useEffect(()=>{
-        connectSocket()
+        if(!socket){
+            connectSocket()
+        }
         return ()=>{
             socket?.close()
         }
@@ -46,11 +48,6 @@ function HandleChange (){
         }
         socket.onclose = () => {
           console.log('socket closed');
-        //   if (reconnectIntervalRef.current) clearInterval(reconnectIntervalRef.current);
-        //   reconnectIntervalRef.current = setTimeout(() => {
-        //     reconnectDelay.current = Math.min(reconnectDelay.current * 2, 30000); // exponential backoff
-        //     connectSocket();
-        //   }, reconnectDelay.current);
         };
     
         socket.onerror = (err) => {

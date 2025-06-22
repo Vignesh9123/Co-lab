@@ -28,16 +28,24 @@ function Code() {
     setSocket(ws);
   };
 
-  useEffect(() => {
-    if (!user?.id) return;
 
-    connectSocket(); // Initial connection
-
+  
+  useEffect(()=>{
+    if(!socket){
+      connectSocket()
+    }
     return () => {
       socket?.close();
       if (reconnectIntervalRef.current) clearInterval(reconnectIntervalRef.current);
     };
-  }, [user?.id]);
+}, [socket])
+
+  useEffect(()=>{
+    return () => {
+      socket?.close();
+      if (reconnectIntervalRef.current) clearInterval(reconnectIntervalRef.current);
+    };
+  }, [])
 
   useEffect(() => {
     if (!socket) return;

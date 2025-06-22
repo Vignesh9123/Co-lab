@@ -44,10 +44,13 @@ class RoomManager{
     disconnectFromRoom(socket: WebSocket){
         if(this.socketToRoom.has(socket)){
             const roomId = this.socketToRoom.get(socket)
+            console.log("Room id to disconnect from ", roomId)
             if(!roomId) return
             this.socketToRoom.delete(socket)
-            if(this.roomsToSockets[roomId].has(socket))
+            if(this.roomsToSockets[roomId].has(socket)){
                 this.roomsToSockets[roomId].delete(socket)
+                console.log("Socket deleted from room")
+            }
         }
     }
 }
