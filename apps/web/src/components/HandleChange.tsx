@@ -4,30 +4,38 @@ import { useEffect } from "react"
 import { TLShapeId, useEditor } from "tldraw"
 function HandleChange (){
     const editor = useEditor()
-    const {socket, setSocket} = useSocketStore()
+    const socket = useSocketStore((state) => state.socket);
+  const setSocket = useSocketStore((state) => state.setSocket);
     const {user} = useAuthStore()
+    
+    const connectSocket = () => {
+        console.log("Connecting to socket...");
+        const ws = new WebSocket('ws://localhost:8000');
+        setSocket(ws);
+      };
 
     useEffect(()=>{
-        if(!socket){
-            const sck = new WebSocket("ws://localhost:8000")
-            setSocket(sck)
+        connectSocket()
+        return ()=>{
+            socket?.close()
         }
-    }, [socket])
-    useEffect(()=>{
-        if(!socket) {
-            console.log("No socket unbd")
-            return
-        }
-
-        socket.onopen = ()=>{
-            console.log("Socket open")
-            socket.send(JSON.stringify({
-                type: 'join-room',
-                roomId: '1',
-                from: user?.id
-              }));
-        }
-
+    }, [])
+   
+    useEffect(() => {
+        if (!socket) {
+        console.log("Socket became null")            
+    return
+};
+    console.log("Socket not null")
+        socket.onopen = () => {
+          console.log('socket opened');
+          socket.send(JSON.stringify({
+            type: 'join-room',
+            roomId: '1',
+            from: user?.id
+          }));
+        };
+    
         socket.onmessage = (m)=>{
             console.log("Message from room", m.data)
             const message = JSON.parse(m.data)
@@ -36,9 +44,20 @@ function HandleChange (){
 
             }
         }
-
-        
-    },[socket])
+        socket.onclose = () => {
+          console.log('socket closed');
+        //   if (reconnectIntervalRef.current) clearInterval(reconnectIntervalRef.current);
+        //   reconnectIntervalRef.current = setTimeout(() => {
+        //     reconnectDelay.current = Math.min(reconnectDelay.current * 2, 30000); // exponential backoff
+        //     connectSocket();
+        //   }, reconnectDelay.current);
+        };
+    
+        socket.onerror = (err) => {
+          console.log('Socket error', err);
+          socket.close(); 
+        };
+      }, [socket]);
     useEffect(()=>{
         if(editor){
             editor.store.listen(update=>{
@@ -54,16 +73,19 @@ function HandleChange (){
                             shape: {...Object.entries(update.changes.updated).filter(s=> s[0].includes("shape"))[0][1][Object.entries(update.changes.updated).filter(s=> s[0].includes("shape"))[0][1].length - 1],parentId:undefined, index: undefined}
                         }
 
-                        socket?.send(JSON.stringify(data))
-                    
-                    if(!socket){
-                        console.log("No socket")
-                    }
+                        
+                        if(!socket){
+                            console.log("No socket")
+                        //     const sck = new WebSocket("ws://localhost:8000")
+                        //     setSocket(sck)
+                        return;
+                        }
+                        socket.send(JSON.stringify(data))
                 }
 
             })
         }
-    }, [editor])
+    }, [editor, socket])
     return <></>
 
 }
