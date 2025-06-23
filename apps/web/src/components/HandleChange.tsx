@@ -43,7 +43,7 @@ function HandleChange (){
             const message = JSON.parse(m.data)
             if(message.type == "DRAW"){
                 if(message.drawType == "addShape"){
-                    editor.createShape({...message.shape, id:message.shape.id as TLShapeId, meta:{fromServer: true}}) // TODO: A unique id for each shape
+                    editor.createShape({...message.shape, id:message.shape.id as TLShapeId, meta:{fromServer: true}}) 
                 }
                 if(message.drawType == "deleteShape"){
                     if(editor.getShape(message.shapeId as TLShapeId)){
@@ -62,8 +62,10 @@ function HandleChange (){
         };
       }, [socket]);
     useEffect(()=>{
+        // TODO: Not adding duplicate shapes
         if(editor){
             editor.store.listen(update=>{
+                // console.log(update)
                 if(Object.entries(update.changes.updated).filter(s=> s[0].includes("shape")).length > 0){
                     console.log("Something added", Object.entries(update.changes.updated).filter(s=> s[0].includes("shape"))[0][1][Object.entries(update.changes.updated).filter(s=> s[0].includes("shape"))[0][1].length - 1] )
 
@@ -76,6 +78,29 @@ function HandleChange (){
                             drawType:"addShape",
                             shape: {...Object.entries(update.changes.updated).filter(s=> s[0].includes("shape"))[0][1][Object.entries(update.changes.updated).filter(s=> s[0].includes("shape"))[0][1].length - 1],parentId:undefined, index: undefined}
                         }
+
+                        
+                        if(!socket){
+                            console.log("No socket")
+                        //     const sck = new WebSocket("ws://localhost:8000")
+                        //     setSocket(sck)
+                        return;
+                        }
+                        socket.send(JSON.stringify(data))
+                }
+                if(Object.entries(update.changes.added).filter(s=> s[0].includes("shape")).length > 0){
+                    console.log("Something added in real", Object.values(update.changes.added)[0] )
+
+                        console.log("Hola scoker")
+                        console.log("From server",Object.keys(Object.values(update.changes.added)[0].meta).includes("fromServer"))
+                        if(Object.keys(Object.values(update.changes.added)[0].meta).includes("fromServer")) return
+                        const data = {
+                            type:"DRAW",
+                            room:"1",
+                            drawType:"addShape",
+                            shape: {...Object.values(update.changes.added)[0],parentId:undefined, index: undefined}
+                        }
+                        console.log("Dup data", data)
 
                         
                         if(!socket){
