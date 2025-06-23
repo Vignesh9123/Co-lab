@@ -42,8 +42,14 @@ function HandleChange (){
             console.log("Message from room", m.data)
             const message = JSON.parse(m.data)
             if(message.type == "DRAW"){
-                editor.createShape({...message.shape, id:message.shape.id as TLShapeId, meta:{fromServer: true}}) // TODO: A unique id for each shape
-
+                if(message.drawType == "addShape"){
+                    editor.createShape({...message.shape, id:message.shape.id as TLShapeId, meta:{fromServer: true}}) // TODO: A unique id for each shape
+                }
+                if(message.drawType == "deleteShape"){
+                    if(editor.getShape(message.shapeId as TLShapeId)){
+                        editor.deleteShape(message.shapeId as TLShapeId)
+                    }
+                }
             }
         }
         socket.onclose = () => {
@@ -67,6 +73,7 @@ function HandleChange (){
                         const data = {
                             type:"DRAW",
                             room:"1",
+                            drawType:"addShape",
                             shape: {...Object.entries(update.changes.updated).filter(s=> s[0].includes("shape"))[0][1][Object.entries(update.changes.updated).filter(s=> s[0].includes("shape"))[0][1].length - 1],parentId:undefined, index: undefined}
                         }
 
@@ -78,6 +85,17 @@ function HandleChange (){
                         return;
                         }
                         socket.send(JSON.stringify(data))
+                }
+                if(Object.entries(update.changes.removed).length > 0){
+                    console.log("Removed", Object.values(update.changes.removed)[0].id)
+                    const data = {
+                        type:"DRAW",
+                        drawType: "deleteShape",
+                        room: "1",
+                        shapeId: Object.values(update.changes.removed)[0].id
+                    }
+                    if(!socket) return
+                    socket.send(JSON.stringify(data))
                 }
 
             })
