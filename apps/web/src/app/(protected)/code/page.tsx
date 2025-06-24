@@ -1,16 +1,18 @@
 'use client'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Editor from '@monaco-editor/react';
 import { useSocketStore } from '@/zustand/socket';
 import { useAuthStore } from '@/zustand/auth';
 import { useCodeStore } from '@/zustand/code';
 import {useDebouncedCallback} from 'use-debounce'
+import { Button } from '@/components/ui/button';
 function Code() {
   const socket = useSocketStore((state) => state.socket);
   const setSocket = useSocketStore((state) => state.setSocket);
   const {user} = useAuthStore()
   const code = useCodeStore((state) => state.code);
   const setCode = useCodeStore((state) => state.setCode);
+   const [editorHeight, setEditorHeight] = useState("90vh")
   // const socketReconnectionInterval = useRef<NodeJS.Timeout>(null)
   // useEffect(()=>{
     //   if(!socket) return
@@ -93,9 +95,22 @@ function Code() {
     socket.send(JSON.stringify({type: 'code', code: value}))
   }, 1000)
   return (
-    <div>
-      Code<Editor
-      height="90vh"
+    <div className='flex items-start p-10'>
+    
+    <div className='bg-muted h-[90vh] w-[50%]'>
+        <div className='flex justify-center gap-2 p-2'>
+          <Button>Run</Button>
+          <Button variant={"outline"}>Submit</Button>
+          <Button onClick={()=>setEditorHeight((prev)=>{if(prev == "50vh") return "90vh"; else return "50vh"})}>
+              {editorHeight == "50vh"?"Close Terminal":"Open Terminal"}
+          </Button>
+        </div>
+        <hr/>
+
+    </div>
+    <div className='w-[50%]'>
+      <Editor
+      height={editorHeight}
       defaultLanguage="javascript"
       defaultValue="// some comment"
       theme='vs-dark'
@@ -104,7 +119,11 @@ function Code() {
       
       // onMount={handleEditorDidMount}
     />
+    {editorHeight == "50vh" && <div className='h-[40vh] w-full bg-muted'>
+      <h1>I am Terminal</h1>
+      </div>}
     </div>
+      </div>
   )
 }
 
